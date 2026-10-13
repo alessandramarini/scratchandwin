@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gratta & Vinci Party PRO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Aggiunta libreria per i coriandoli (Confetti) -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Rowdies:wght@400;700&display=swap');
+
+        :root {
+            --primary-glow: rgba(250, 204, 21, 0.5);
+            --bg-color: #0b0f19;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(245, 158, 11, 0.08), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(139, 92, 246, 0.08), transparent 25%);
+            color: white;
+            overscroll-behavior-y: none;
+            -webkit-tap-highlight-color: transparent; /* Rimuove il flash di tap su mobile */
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: pan-x pan-y; /* Permette lo scroll nativo dove serve, ma lo blocchiamo sul canvas */
+        }
+
+        h1, h2, .ticket-title, .win-amount {
+            font-family: 'Rowdies', cursive;
+        }
+
+        /* Effetto Vetro Premium */
+        .glass-panel {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        /* Input stilizzati */
+        .premium-input {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .premium-input:focus {
+            outline: none;
+            border-color: #facc15;
+            box-shadow: 0 0 15px var(--primary-glow);
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        /* Il Ticket */
+        .ticket-container {
+            width: 100%;
+            max-width: 360px;
+            aspect-ratio: 2 / 3.1;
+            position: relative;
+            border-radius: 2rem;
+            padding: 1.2rem;
+            box-shadow: 
+                0 25px 50px -12px rgba(0,0,0,0.8), 
+                inset 0 0 0 2px rgba(255,255,255,0.2),
+                inset 0 0 20px rgba(255,255,255,0.5);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+        }
+
+        /* Effetto Olografico */
+        .ticket-container::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(125deg, 
+                rgba(255,255,255,0) 0%, 
+                rgba(255,255,255,0.1) 40%, 
+                rgba(255,255,255,0.6) 50%, 
+                rgba(255,255,255,0.1) 60%, 
+                rgba(255,255,255,0) 100%);
+            background-size: 200% 200%;
+            animation: shimmer 6s infinite linear;
+            pointer-events: none;
+            z-index: 20;
+            mix-blend-mode: overlay;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .ticket-theme-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-size: 150px;
+            background-position: center;
+            opacity: 0.08;
+            pointer-events: none;
+            mix-blend-mode: color-burn;
+        }
+
+        .scratch-area-wrapper {
+            flex-grow: 1;
+            margin-top: 1rem;
+            position: relative;
+            border-radius: 1.5rem;
+            overflow: hidden;
+            background: #ffffff;
+            box-shadow: inset 0 10px 20px rgba(0,0,0,0.2);
+            border: 6px solid rgba(255,255,255,0.2);
+            transform: translateZ(20px); /* 3D pop */
+        }
+
+        /* Il risultato sotto la patina */
+        .result-content {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            padding: 1rem;
+            user-select: none;
+            background: radial-gradient(circle, #ffffff 0%, #f1f5f9 100%);
+        }
+
+        .win-amount {
+            font-size: 4rem;
+            font-weight: 900;
+            background: linear-gradient(to bottom, #22c55e, #16a34a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0px 4px 2px rgba(0,0,0,0.2));
+            line-height: 1.1;
+        }
+
+        .lose-text {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #cbd5e1;
+            text-shadow: 1px 1px 0px #fff, -1px -1px 0px #94a3b8;
+            line-height: 1.2;
+        }
+
+        /* La patina da grattare */
+        .scratch-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            z-index: 10;
+            transition: opacity 0.6s ease;
+            touch-action: none; /* Fondamentale per bloccare lo scroll durante il grattamento su iOS/Android */
+            -webkit-touch-callout: none;
+        }
+
+        /* Animazioni di Vittoria */
+        @keyframes epic-win {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.8); }
+            30% { transform: scale(1.05) rotate(2deg); }
+            50% { transform: scale(1.05) rotate(-2deg); box-shadow: 0 0 40px 20px rgba(34, 197, 94, 0); }
+            70% { transform: scale(1.05) rotate(2deg); }
+            100% { transform: scale(1) rotate(0); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+
+        .is-winner {
+            animation: epic-win 1.5s ease-out forwards;
+            border: 4px solid #4ade80;
+        }
+        
+        .is-winner .result-content {
+            background: radial-gradient(circle, #dcfce7 0%, #f0fdf4 100%);
+        }
+
+        .hide { display: none !important; }
+        
+        /* Carousel per sfogliare */
+        .carousel-track {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .carousel-slide {
+            min-width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+            perspective: 1000px;
+        }
+
+        /* Pulsante genera gradient */
+        .btn-magic {
+            background-size: 200% auto;
+            background-image: linear-gradient(to right, #f59e0b 0%, #ea580c 51%, #f59e0b 100%);
+            transition: 0.5s;
+        }
+        .btn-magic:hover {
+            background-position: right center;
+        }
+
+        /* Custom Scrollbar per la lista premi */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+
+    </style>
+</head>
+<body class="min-h-[100dvh] flex flex-col selection:bg-yellow-500 selection:text-black">
+
+    <!-- SCHERMATA SETUP -->
+    <div id="setup-view" class="flex-1 flex items-center justify-center p-4 relative z-10">
+        <div class="glass-panel rounded-[2.5rem] p-8 w-full max-w-xl relative overflow-hidden">
+            <!-- Glow background -->
+            <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-yellow-500/20 blur-[50px] rounded-full pointer-events-none"></div>
+
+            <div class="text-center mb-10 relative z-10">
+                <div class="inline-block p-4 rounded-full bg-gradient-to-br from-yellow-400/20 to-orange-500/20 border border-yellow-500/30 mb-4 shadow-[0_0_15px_rgba(250,204,21,0.3)]">
+                    <i class="fas fa-ticket-alt text-4xl text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-yellow-600"></i>
+                </div>
+                <h1 class="text-4xl md:text-5xl text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-yellow-500 to-orange-500 font-bold tracking-wide">Scratch Party</h1>
+                <p class="text-gray-400 text-sm mt-2 font-medium tracking-wider uppercase">Generatore di Gratta & Vinci PRO</p>
+            </div>
+
+            <div class="space-y-6 relative z-10">
+                <!-- Sezione Cartelle e Costo -->
+                <div class="grid grid-cols-2 gap-5">
+                    <div class="group">
+                        <label class="block text-xs font-bold uppercase tracking-wider mb-2 text-gray-400 group-focus-within:text-yellow-400 transition">Num. Cartelle</label>
+                        <div class="relative">
+                            <i class="fas fa-layer-group absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
+                            <input type="number" id="num-cards" value="10" min="2" max="200" class="premium-input w-full rounded-2xl pl-11 pr-4 py-3.5 text-xl font-bold transition">
+                        </div>
+                    </div>
+                    <div class="group">
+                        <label class="block text-xs font-bold uppercase tracking-wider mb-2 text-gray-400 group-focus-within:text-yellow-400 transition">Costo (€ cad.)</label>
+                        <div class="relative">
+                            <i class="fas fa-euro-sign absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
+                            <input type="number" id="card-cost" value="5" min="0" step="0.5" class="premium-input w-full rounded-2xl pl-11 pr-4 py-3.5 text-xl font-bold transition">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Montepremi Calcolato -->
+                <div class="bg-black/40 rounded-2xl p-5 text-center border border-white/5 relative overflow-hidden group">
+                    <div class="absolute inset-0 bg-gradient-to-r from-green-500/0 via-green-500/5 to-green-500/0 opacity-0 group-hover:opacity-100 transition duration-500"></div>
+                    <span class="text-xs text-gray-400 uppercase font-bold tracking-widest flex items-center justify-center gap-2">
+                        <i class="fas fa-vault text-gray-500"></i> Montepremi Totale
+                    </span>
+                    <div id="total-pool-display" class="text-4xl font-black text-green-400 mt-2 tracking-tight drop-shadow-[0_0_8px_rgba(74,222,128,0.4)]">50,00 €</div>
+                </div>
+
+                <!-- Sezione Premi -->
+                <div class="bg-white/5 p-5 rounded-2xl border border-white/10">
+                    <div class="flex items-center gap-2 mb-4">
+                        <i class="fas fa-gift text-yellow-500"></i>
+                        <label class="block text-sm font-bold uppercase tracking-wider text-gray-300">Configurazione Premi</label>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-[10px] text-gray-400 uppercase font-bold tracking-wider mb-1.5">Numero Premi</label>
+                            <input type="number" id="num-prizes" value="3" min="1" class="premium-input w-full rounded-xl px-3 py-2.5 text-sm font-semibold">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] text-gray-400 uppercase font-bold tracking-wider mb-1.5">Distribuzione</label>
+                            <select id="prize-mode" class="premium-input w-full rounded-xl px-3 py-2.5 text-sm font-semibold appearance-none">
+                                <option value="auto">🏆 Proporzionale (Classifica)</option>
+                                <option value="equal">⚖️ Parti Uguali</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="prize-preview" class="text-xs text-yellow-300 font-mono bg-black/50 p-3 rounded-xl border border-yellow-500/20 break-words leading-relaxed">
+                        Anteprima: ...
+                    </div>
+                </div>
+
+                <!-- Sezione Tema -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider mb-2 text-gray-400"><i class="fas fa-palette mr-1"></i> Stile Visivo</label>
+                    <select id="theme-select" class="premium-input w-full rounded-2xl px-4 py-3.5 text-base font-semibold appearance-none mb-3">
+                        <option value="party">🍻 Serata tra Amici (Viola/Fucsia)</option>
+                        <option value="casino">🎰 Las Vegas VIP (Rosso/Nero)</option>
+                        <option value="gold">👑 Gold Edition (Oro/Nero)</option>
+                        <option value="custom">✨ Crea Tema Personalizzato...</option>
+                    </select>
+                    <input type="text" id="custom-theme-input" placeholder="Es. Addio al Celibato..." class="hide premium-input w-full rounded-2xl px-4 py-3.5 text-base font-semibold">
+                </div>
+
+                <button id="generate-btn" class="btn-magic w-full text-white font-black uppercase tracking-widest py-4 rounded-2xl shadow-[0_10px_20px_-10px_rgba(245,158,11,0.6)] transform transition hover:-translate-y-1 active:scale-95 text-lg mt-2 flex items-center justify-center gap-3">
+                    Crea i Grattini <i class="fas fa-wand-magic-sparkles"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCHERMATA GIOCO -->
+    <div id="game-view" class="hide flex-1 flex flex-col h-[100dvh] overflow-hidden relative">
+        
+        <!-- Sfondo animato dinamico -->
+        <div id="game-bg" class="absolute inset-0 opacity-20 transition-colors duration-1000 z-0"></div>
+
+        <!-- Header Gioco -->
+        <div class="p-4 flex justify-between items-center z-20">
+            <button id="back-to-setup" class="text-white hover:text-yellow-400 transition w-12 h-12 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-md border border-white/10 shadow-lg group">
+                <i class="fas fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
+            </button>
+            
+            <div class="text-center bg-black/40 backdrop-blur-md border border-white/10 px-6 py-2 rounded-2xl shadow-lg">
+                <h2 id="game-title" class="text-lg md:text-xl text-yellow-400 font-black tracking-widest uppercase drop-shadow-md">Tema</h2>
+                <div class="text-[10px] uppercase tracking-widest text-gray-300 font-bold mt-0.5">
+                    Ticket <span id="current-card-num" class="text-white text-xs">1</span> / <span id="total-cards-num" class="text-white text-xs">10</span>
+                </div>
+            </div>
+
+            <button id="info-btn" class="text-white hover:text-yellow-400 transition w-12 h-12 flex items-center justify-center rounded-full bg-black/40 backdrop-blur-md border border-white/10 shadow-lg relative">
+                <i class="fas fa-trophy"></i>
+                <span class="absolute -top-1 -right-1 flex h-4 w-4">
+                  <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
+                  <span class="relative inline-flex rounded-full h-4 w-4 bg-yellow-500 border border-yellow-700"></span>
+                </span>
+            </button>
+        </div>
+
+        <!-- Area Gratta e Vinci (Carousel) -->
+        <div class="flex-1 relative overflow-hidden flex items-center justify-center z-10" id="carousel-viewport">
+            <div id="cards-container" class="carousel-track">
+                <!-- Le cartelle verranno iniettate qui via JS -->
+            </div>
+        </div>
+
+        <!-- Controlli Navigazione & Magia -->
+        <div class="p-4 md:p-6 flex flex-col md:flex-row justify-between items-center z-20 gap-4">
+            <div class="flex justify-between w-full md:w-auto gap-4">
+                <button id="prev-card-btn" class="flex-1 md:flex-none bg-black/50 hover:bg-black/70 backdrop-blur-md text-white px-6 py-4 rounded-2xl border border-white/10 shadow-lg disabled:opacity-30 disabled:cursor-not-allowed transition flex items-center justify-center font-bold tracking-wider text-sm">
+                    <i class="fas fa-chevron-left mr-2 text-xs"></i> Precedente
+                </button>
+                <button id="next-card-btn" class="flex-1 md:flex-none bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white px-6 py-4 rounded-2xl shadow-[0_0_20px_rgba(79,70,229,0.4)] disabled:opacity-30 disabled:cursor-not-allowed transition flex items-center justify-center font-bold tracking-wider text-sm">
+                    Prossimo <i class="fas fa-chevron-right ml-2 text-xs"></i>
+                </button>
+            </div>
+            
+            <!-- Pulsante Rivela Tutto (Cheat/Host) -->
+            <button id="reveal-btn" class="w-full md:w-auto bg-white/10 hover:bg-white/20 backdrop-blur-md text-yellow-400 border border-yellow-500/30 px-6 py-4 rounded-2xl transition flex items-center justify-center font-bold text-sm tracking-wider group">
+                <i class="fas fa-wand-magic-sparkles mr-2 group-hover:animate-spin"></i> Svela Subito
+            </button>
+        </div>
+
+        <!-- Modale Info Premi -->
+        <div id="prizes-modal" class="hide fixed inset-0 bg-black/90 z-50 flex items-center justify-center backdrop-blur-xl p-4 transition-opacity">
+            <div class="glass-panel rounded-[2rem] p-6 w-full max-w-sm shadow-2xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-yellow-500/20 blur-[50px] pointer-events-none"></div>
+                
+                <div class="flex justify-between items-center mb-6 relative z-10">
+                    <h3 class="text-2xl font-black text-white tracking-wider flex items-center">
+                        <i class="fas fa-crown text-yellow-400 mr-3 drop-shadow-md"></i> Montepremi
+                    </h3>
+                    <button id="close-modal-btn" class="text-gray-400 hover:text-white bg-white/5 rounded-full w-8 h-8 flex items-center justify-center transition"><i class="fas fa-times"></i></button>
+                </div>
+                
+                <div class="bg-black/50 rounded-2xl p-5 mb-6 text-center border border-white/5 relative z-10">
+                    <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mb-1">Totale in Palio</p>
+                    <p class="text-4xl font-black text-green-400 drop-shadow-md" id="modal-total-pool">0 €</p>
+                </div>
+                
+                <div class="relative z-10">
+                    <p class="text-[10px] text-gray-500 uppercase font-bold tracking-widest mb-2 pl-2">Elenco Premi</p>
+                    <ul id="modal-prizes-list" class="space-y-3 max-h-[40vh] overflow-y-auto pr-2">
+                        <!-- Lista premi -->
+                    </ul>
+                </div>
+                
+                <button id="close-modal-btn-2" class="w-full mt-6 bg-white/10 hover:bg-white/20 text-white font-bold tracking-wider uppercase py-4 rounded-xl transition border border-white/10 relative z-10">Torna a Giocare</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Stato dell'applicazione
+        const state = {
+            numCards: 10,
+            costPerCard: 5,
+            totalPool: 50,
+            numPrizes: 3,
+            prizeMode: 'auto',
+            theme: 'party',
+            customTheme: '',
+            prizesList: [],
+            cardsData: [],
+            currentCardIndex: 0
+        };
+
+        // Elementi DOM Setup
+        const elNumCards = document.getElementById('num-cards');
+        const elCardCost = document.getElementById('card-cost');
+        const elTotalPool = document.getElementById('total-pool-display');
+        const elNumPrizes = document.getElementById('num-prizes');
+        const elPrizeMode = document.getElementById('prize-mode');
+        const elPrizePreview = document.getElementById('prize-preview');
+        const elThemeSelect = document.getElementById('theme-select');
+        const elCustomTheme = document.getElementById('custom-theme-input');
+        const btnGenerate = document.getElementById('generate-btn');
+
+        // Elementi DOM Gioco
+        const viewSetup = document.getElementById('setup-view');
+        const viewGame = document.getElementById('game-view');
+        const elGameTitle = document.getElementById('game-title');
+        const elCurrentCardNum = document.getElementById('current-card-num');
+        const elTotalCardsNum = document.getElementById('total-cards-num');
+        const cardsContainer = document.getElementById('cards-container');
+        const btnPrev = document.getElementById('prev-card-btn');
+        const btnNext = document.getElementById('next-card-btn');
+        const btnBackSetup = document.getElementById('back-to-setup');
+        const btnReveal = document.getElementById('reveal-btn');
+        const gameBg = document.getElementById('game-bg');
+        
+        // Elementi Modale
+        const modalPrizes = document.getElementById('prizes-modal');
+        const btnInfo = document.getElementById('info-btn');
+        const btnCloseModal1 = document.getElementById('close-modal-btn');
+        const btnCloseModal2 = document.getElementById('close-modal-btn-2');
+        const elModalTotalPool = document.getElementById('modal-total-pool');
+        const elModalPrizesList = document.getElementById('modal-prizes-list');
+
+        // Configurazione Temi PRO
+        const themes = {
+            party: { name: 'Party Time', color1: '#7e22ce', color2: '#db2777', icon: '🥂', bg: '#4c1d95' },
+            casino: { name: 'Las Vegas VIP', color1: '#b91c1c', color2: '#000000', icon: '🎰', bg: '#450a0a' },
+            gold: { name: 'Royal Gold', color1: '#b45309', color2: '#000000', icon: '👑', bg: '#27272a' },
+            custom: { name: '', color1: '#0ea5e9', color2: '#2563eb', icon: '✨', bg: '#0f172a' }
+        };
+
+        // Utilities
+        const formatEuro = (num) => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(num);
+        
+        // Trigger Haptic Feedback se supportato
+        const triggerHaptic = (pattern = 50) => {
+            if (navigator.vibrate) {
+                try { navigator.vibrate(pattern); } catch(e){}
+            }
+        };
+
+        // Effetto Confetti
+        const triggerConfetti = () => {
+            if(typeof confetti === 'function') {
+                const duration = 3000;
+                const end = Date.now() + duration;
+
+                (function frame() {
+                    confetti({
+                        particleCount: 5,
+                        angle: 60,
+                        spread: 55,
+                        origin: { x: 0, y: 0.8 },
+                        colors: ['#22c55e', '#facc15', '#ffffff']
+                    });
+                    confetti({
+                        particleCount: 5,
+                        angle: 120,
+                        spread: 55,
+                        origin: { x: 1, y: 0.8 },
+                        colors: ['#22c55e', '#facc15', '#ffffff']
+                    });
+
+                    if (Date.now() < end) {
+                        requestAnimationFrame(frame);
+                    }
+                }());
+            }
+        };
+
+        // Calcoli Setup
+        function updateSetupCalculations() {
+            state.numCards = parseInt(elNumCards.value) || 0;
+            state.costPerCard = parseFloat(elCardCost.value) || 0;
+            state.totalPool = state.numCards * state.costPerCard;
+            
+            if (state.numCards < 2) elNumCards.value = 2;
+            let numPrizesVal = parseInt(elNumPrizes.value) || 1;
+            if (numPrizesVal > state.numCards) {
+                numPrizesVal = state.numCards;
+                elNumPrizes.value = numPrizesVal;
+            }
+            state.numPrizes = numPrizesVal;
+            state.prizeMode = elPrizeMode.value;
+
+            elTotalPool.innerText = formatEuro(state.totalPool);
+
+            state.prizesList = calculatePrizes();
+            
+            let previewHTML = '';
+            if(state.totalPool <= 0) {
+                previewHTML = "Imposta cartelle e costo per calcolare i premi.";
+            } else {
+                if (state.prizesList.length <= 5) {
+                    previewHTML = state.prizesList.map((p, i) => `<b>${i+1}°</b>: ${formatEuro(p)}`).join(' &nbsp;|&nbsp; ');
+                } else {
+                    previewHTML = state.prizesList.slice(0, 3).map((p, i) => `<b>${i+1}°</b>: ${formatEuro(p)}`).join(' &nbsp;|&nbsp; ') + ` ...e altri ${state.prizesList.length - 3}`;
+                }
+            }
+            elPrizePreview.innerHTML = previewHTML;
+
+            if (elThemeSelect.value === 'custom') {
+                elCustomTheme.classList.remove('hide');
+                state.theme = 'custom';
+            } else {
+                elCustomTheme.classList.add('hide');
+                state.theme = elThemeSelect.value;
+            }
+        }
+
+        function calculatePrizes() {
+            let prizes = [];
+            let pool = state.totalPool;
+            let n = state.numPrizes;
+
+            if (pool <= 0 || n <= 0) return prizes;
+
+            if (state.prizeMode === 'equal') {
+                let split = Math.floor((pool / n) * 100) / 100;
+                for (let i = 0; i < n; i++) prizes.push(split);
+                let totalSplit = split * n;
+                if(totalSplit < pool) prizes[0] = Math.round((prizes[0] + (pool - totalSplit)) * 100) / 100;
+            } else {
+                let weights = [];
+                let totalWeight = 0;
+                for (let i = 0; i < n; i++) {
+                    let weight = Math.pow(n - i, 1.8); // Curva più ripida per premi PRO
+                    weights.push(weight);
+                    totalWeight += weight;
+                }
+
+                for (let i = 0; i < n; i++) {
+                    let amount = Math.floor((pool * (weights[i] / totalWeight)) * 2) / 2;
+                    prizes.push(amount);
+                }
+
+                let sum = prizes.reduce((a, b) => a + b, 0);
+                if (sum !== pool) prizes[0] += (pool - sum);
+            }
+            return prizes.sort((a, b) => b - a);
+        }
+
+        // Event Listeners Setup
+        elNumCards.addEventListener('input', updateSetupCalculations);
+        elCardCost.addEventListener('input', updateSetupCalculations);
+        elNumPrizes.addEventListener('input', updateSetupCalculations);
+        elPrizeMode.addEventListener('change', updateSetupCalculations);
+        elThemeSelect.addEventListener('change', updateSetupCalculations);
+        
+        updateSetupCalculations();
+
+        btnGenerate.addEventListener('click', () => {
+            state.customTheme = elCustomTheme.value.trim();
+            if (state.theme === 'custom' && !state.customTheme) {
+                // Modalità fallback custom name
+                state.customTheme = "Tema Personalizzato";
+            }
+
+            generateGameData();
+            buildCarouselDOM();
+            
+            // Switch vista
+            viewSetup.classList.add('hide');
+            viewGame.classList.remove('hide');
+            
+            // Update Header & Background
+            let themeConfig = themes[state.theme];
+            let titleText = state.theme === 'custom' ? state.customTheme : themeConfig.name;
+            elGameTitle.innerHTML = `${themeConfig.icon} ${titleText}`;
+            elTotalCardsNum.innerText = state.numCards;
+            gameBg.style.backgroundColor = themeConfig.bg;
+            
+            // Popola Modale Premi
+            elModalTotalPool.innerText = formatEuro(state.totalPool);
+            elModalPrizesList.innerHTML = state.prizesList.map((p, i) => 
+                `<li class="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/10 shadow-sm">
+                    <span class="font-black text-gray-300 text-sm flex items-center">
+                        ${i===0 ? '<i class="fas fa-medal text-yellow-400 mr-2 text-lg"></i> 1° PREMIO' : 
+                          i===1 ? '<i class="fas fa-medal text-gray-400 mr-2"></i> 2° Premio' : 
+                          i===2 ? '<i class="fas fa-medal text-amber-600 mr-2"></i> 3° Premio' : 
+                          `<span class="w-5 mr-2 text-center text-gray-500">${i+1}°</span> Premio`}
+                    </span>
+                    <span class="text-xl font-black text-green-400 tracking-tight">${formatEuro(p)}</span>
+                </li>`
+            ).join('');
+
+            triggerHaptic([100, 50, 100]); // Startup feel
+            goToCard(0);
+        });
+
+        function generateGameData() {
+            let allPrizes = [...state.prizesList];
+            while (allPrizes.length < state.numCards) allPrizes.push(0);
+            
+            for (let i = allPrizes.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [allPrizes[i], allPrizes[j]] = [allPrizes[j], allPrizes[i]];
+            }
+
+            state.cardsData = allPrizes.map((amount, index) => ({
+                id: index,
+                amount: amount,
+                isWinner: amount > 0,
+                isRevealed: false
+            }));
+        }
+
+        function buildCarouselDOM() {
+            cardsContainer.innerHTML = '';
+            let themeConfig = themes[state.theme];
+
+            state.cardsData.forEach((card, index) => {
+                const slide = document.createElement('div');
+                slide.className = 'carousel-slide';
+                
+                let gradStart = state.theme === 'custom' ? themeConfig.color1 : themeConfig.color1;
+                let gradEnd = state.theme === 'custom' ? themeConfig.color2 : themeConfig.color2;
+
+                slide.innerHTML = `
+                    <div class="ticket-container" id="ticket-${index}" style="background: linear-gradient(145deg, ${gradStart}, ${gradEnd})">
+                        <div class="ticket-theme-overlay" style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%2250%22 font-size=%2250%22>${themeConfig.icon}</text></svg>');"></div>
+                        
+                        <div class="text-center z-10 flex flex-col items-center justify-center">
+                            <div class="bg-black/30 text-white/80 text-[10px] font-mono px-3 py-1 rounded-full mb-2 tracking-widest uppercase border border-white/10">ID: ${Math.random().toString(36).substring(2, 8).toUpperCase()}</div>
+                            <h3 class="ticket-title text-3xl uppercase tracking-widest text-white shadow-sm drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">TICKET #${index + 1}</h3>
+                        </div>
+
+                        <div class="scratch-area-wrapper z-10 relative" id="wrapper-${index}">
+                            <!-- Sottostante (Risultato) -->
+                            <div class="result-content" id="result-${index}">
+                                ${card.isWinner 
+                                    ? `<div class="text-[10px] text-green-600 uppercase font-black tracking-widest mb-1 bg-green-100 px-3 py-1 rounded-full border border-green-200">HAI VINTO!</div>
+                                       <div class="win-amount mt-1">${formatEuro(card.amount)}</div>
+                                       <i class="fas fa-coins text-yellow-500 text-4xl mt-3 drop-shadow-md"></i>` 
+                                    : `<div class="lose-text mt-4">RITENTA</div>
+                                       <div class="text-xs text-gray-400 uppercase font-bold tracking-widest mt-2">Sarai più fortunato</div>
+                                       <i class="far fa-face-frown-open text-gray-300 text-4xl mt-4 opacity-50"></i>`
+                                }
+                            </div>
+                            
+                            <!-- Canvas da grattare -->
+                            <canvas id="canvas-${index}" class="scratch-canvas"></canvas>
+                        </div>
+                        
+                        <div class="mt-auto text-center z-10 pt-3">
+                            <p class="text-[9px] text-white/50 uppercase tracking-widest">Gratta la superficie argentata</p>
+                        </div>
+                    </div>
+                `;
+                cardsContainer.appendChild(slide);
+            });
+
+            // Inizializza i Canvas dopo render
+            setTimeout(() => {
+                state.cardsData.forEach((_, index) => initScratchCanvas(index));
+            }, 100);
+        }
+
+        function goToCard(index) {
+            if (index < 0 || index >= state.numCards) return;
+            state.currentCardIndex = index;
+            
+            cardsContainer.style.transform = `translateX(-${index * 100}%)`;
+            
+            elCurrentCardNum.innerText = index + 1;
+            btnPrev.disabled = index === 0;
+            btnNext.disabled = index === state.numCards - 1;
+
+            // Nascondi pulsante reveal se già svelato
+            btnReveal.style.opacity = state.cardsData[index].isRevealed ? '0.3' : '1';
+            btnReveal.style.pointerEvents = state.cardsData[index].isRevealed ? 'none' : 'auto';
+        }
+
+        btnPrev.addEventListener('click', () => { triggerHaptic(20); goToCard(state.currentCardIndex - 1); });
+        btnNext.addEventListener('click', () => { triggerHaptic(20); goToCard(state.currentCardIndex + 1); });
+        
+        btnBackSetup.addEventListener('click', () => {
+            triggerHaptic(20);
+            viewGame.classList.add('hide');
+            viewSetup.classList.remove('hide');
+        });
+
+        const toggleModal = () => {
+            triggerHaptic(20);
+            modalPrizes.classList.toggle('hide');
+        };
+        btnInfo.addEventListener('click', toggleModal);
+        btnCloseModal1.addEventListener('click', toggleModal);
+        btnCloseModal2.addEventListener('click', toggleModal);
+
+        function initScratchCanvas(index) {
+            const canvas = document.getElementById(`canvas-${index}`);
+            const wrapper = document.getElementById(`wrapper-${index}`);
+            const ctx = canvas.getContext('2d', { willReadFrequently: true });
+            
+            const rect = wrapper.getBoundingClientRect();
+            // Fissiamo una larghezza/altezza base nel caso in cui il DOM non sia completamente renderizzato
+            const cssWidth = rect.width || 280;
+            const cssHeight = rect.height || 400; 
+            
+            // Gestione HiDPI/Retina display per disegni e testi perfetti su smartphone Apple/Android
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = cssWidth * dpr; 
+            canvas.height = cssHeight * dpr;
+            
+            // Scaliamo il contesto in modo che tutte le coordinate successive siano in pixel CSS logici
+            ctx.scale(dpr, dpr);
+
+            // Disegna la patina realistica
+            const drawCover = () => {
+                // Base gradient metallico
+                const grad = ctx.createLinearGradient(0, 0, cssWidth, cssHeight);
+                grad.addColorStop(0, '#e2e8f0');
+                grad.addColorStop(0.3, '#94a3b8');
+                grad.addColorStop(0.5, '#f8fafc');
+                grad.addColorStop(0.7, '#cbd5e1');
+                grad.addColorStop(1, '#64748b');
+                
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, cssWidth, cssHeight);
+                
+                // Pattern (Testo ripetuto e rumore visivo)
+                ctx.fillStyle = 'rgba(255,255,255,0.4)';
+                ctx.font = 'bold 24px Rowdies';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                ctx.save();
+                ctx.translate(cssWidth/2, cssHeight/2);
+                ctx.rotate(-Math.PI / 6);
+                for(let i = -5; i <= 5; i++) {
+                    for(let j = -5; j <= 5; j++) {
+                         ctx.fillText('WIN', i * 70, j * 50);
+                    }
+                }
+                ctx.restore();
+
+                // Bordo interno sfumato per dare volume
+                const borderGrad = ctx.createLinearGradient(0,0,0,cssHeight);
+                borderGrad.addColorStop(0, 'rgba(255,255,255,0.8)');
+                borderGrad.addColorStop(1, 'rgba(0,0,0,0.2)');
+                ctx.strokeStyle = borderGrad;
+                ctx.lineWidth = 6;
+                ctx.strokeRect(0,0,cssWidth, cssHeight);
+            };
+
+            drawCover();
+
+            let isDrawing = false;
+            let brushRadius = 35; // Leggermente più grande per facilitare su touch
+            let lastVibrateTime = 0;
+
+            const getPointerPos = (e) => {
+                const bRect = canvas.getBoundingClientRect();
+                let clientX = e.clientX;
+                let clientY = e.clientY;
+                
+                if (e.touches && e.touches.length > 0) {
+                    clientX = e.touches[0].clientX;
+                    clientY = e.touches[0].clientY;
+                }
+                
+                // Grazie al ctx.scale e al touch-action:none, non serve calcolare fattori di scala complessi
+                return {
+                    x: clientX - bRect.left,
+                    y: clientY - bRect.top
+                };
+            };
+
+            const scratch = (x, y) => {
+                ctx.globalCompositeOperation = 'destination-out';
+                
+                // Disegna con bordo sfumato per realismo (Radial Gradient brush)
+                const radGrad = ctx.createRadialGradient(x, y, brushRadius/3, x, y, brushRadius);
+                radGrad.addColorStop(0, 'rgba(0,0,0,1)');
+                radGrad.addColorStop(1, 'rgba(0,0,0,0)');
+                
+                ctx.fillStyle = radGrad;
+                ctx.beginPath();
+                ctx.arc(x, y, brushRadius, 0, Math.PI * 2, false);
+                ctx.fill();
+
+                // Haptic feedback continuo ma ottimizzato
+                const now = Date.now();
+                if(now - lastVibrateTime > 100) {
+                    triggerHaptic(10);
+                    lastVibrateTime = now;
+                }
+            };
+
+            const handleDown = (e) => {
+                if(state.cardsData[index].isRevealed) return;
+                isDrawing = true;
+                const pos = getPointerPos(e);
+                scratch(pos.x, pos.y);
+            };
+
+            const handleMove = (e) => {
+                if (!isDrawing || state.cardsData[index].isRevealed) return;
+                // Previene i comportamenti di swipe native di iOS/Android in modo drastico
+                if(e.cancelable) {
+                    e.preventDefault(); 
+                }
+                
+                // Sincronizza il disegno col refresh dello schermo per massima fluidità
+                const pos = getPointerPos(e);
+                requestAnimationFrame(() => {
+                    scratch(pos.x, pos.y);
+                });
+            };
+
+            const handleUp = () => {
+                if(!isDrawing) return;
+                isDrawing = false;
+                checkScratchedArea();
+            };
+
+            const revealCard = () => {
+                if(state.cardsData[index].isRevealed) return;
+                state.cardsData[index].isRevealed = true;
+                
+                canvas.style.opacity = '0';
+                canvas.style.pointerEvents = 'none';
+                
+                if (index === state.currentCardIndex) {
+                    btnReveal.style.opacity = '0.3';
+                    btnReveal.style.pointerEvents = 'none';
+                }
+
+                setTimeout(() => {
+                    canvas.style.display = 'none';
+                    if(state.cardsData[index].isWinner) {
+                        wrapper.classList.add('is-winner');
+                        triggerConfetti();
+                        triggerHaptic([200, 100, 200, 100, 500]); // Epic win vibration
+                    } else {
+                        triggerHaptic([50, 100, 50]); // Lose vibration
+                    }
+                }, 600);
+            };
+
+            const checkScratchedArea = () => {
+                if(state.cardsData[index].isRevealed) return;
+                
+                const stride = 15; // Campionamento ottimizzato
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const pixels = imageData.data;
+                let transparent = 0;
+                let total = 0;
+
+                for (let i = 0; i < pixels.length; i += 4 * stride) {
+                    total++;
+                    if (pixels[i + 3] < 128) transparent++;
+                }
+
+                if ((transparent / total) * 100 > 40) {
+                    revealCard();
+                }
+            };
+
+            // Event Listeners
+            canvas.addEventListener('mousedown', handleDown);
+            canvas.addEventListener('mousemove', handleMove);
+            window.addEventListener('mouseup', handleUp);
+
+            canvas.addEventListener('touchstart', handleDown, { passive: false });
+            canvas.addEventListener('touchmove', handleMove, { passive: false });
+            window.addEventListener('touchend', handleUp);
+
+            // Esponi la funzione reveal al DOM per il pulsante magico
+            canvas.revealFunc = revealCard;
+        }
+
+        // Tasto Svela Subito
+        btnReveal.addEventListener('click', () => {
+            const currentCanvas = document.getElementById(`canvas-${state.currentCardIndex}`);
+            if(currentCanvas && currentCanvas.revealFunc) {
+                // Disegna cerchi a caso per animare un po' prima di sparire
+                triggerHaptic(50);
+                currentCanvas.revealFunc();
+            }
+        });
+
+    </script>
+</body>
+</html>
