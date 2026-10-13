@@ -762,6 +762,8 @@
             drawCover();
 
             let isDrawing = false;
+            let lastX = 0;
+            let lastY = 0;
             let brushRadius = 35; // Leggermente più grande per facilitare su touch
             let lastVibrateTime = 0;
 
@@ -782,22 +784,28 @@
                 };
             };
 
-            const scratch = (x, y) => {
+            // Disegna il punto iniziale quando si tocca lo schermo
+            const scratchPoint = (x, y) => {
                 ctx.globalCompositeOperation = 'destination-out';
-                
-                // Disegna con bordo sfumato per realismo (Radial Gradient brush)
-                const radGrad = ctx.createRadialGradient(x, y, brushRadius/3, x, y, brushRadius);
-                radGrad.addColorStop(0, 'rgba(0,0,0,1)');
-                radGrad.addColorStop(1, 'rgba(0,0,0,0)');
-                
-                ctx.fillStyle = radGrad;
                 ctx.beginPath();
                 ctx.arc(x, y, brushRadius, 0, Math.PI * 2, false);
                 ctx.fill();
+            };
+
+            // Disegna una linea continua quando si muove il dito/mouse veloce
+            const scratchLine = (x, y) => {
+                ctx.globalCompositeOperation = 'destination-out';
+                ctx.lineJoin = 'round';
+                ctx.lineCap = 'round';
+                ctx.lineWidth = brushRadius * 2;
+                ctx.beginPath();
+                ctx.moveTo(lastX, lastY);
+                ctx.lineTo(x, y);
+                ctx.stroke();
 
                 // Haptic feedback continuo ma ottimizzato
                 const now = Date.now();
-                if(now - lastVibrateTime > 100) {
+                if(now - lastVibrateTime > 150) { // Allungato a 150ms per non impallare il device
                     triggerHaptic(10);
                     lastVibrateTime = now;
                 }
@@ -807,7 +815,9 @@
                 if(state.cardsData[index].isRevealed) return;
                 isDrawing = true;
                 const pos = getPointerPos(e);
-                scratch(pos.x, pos.y);
+                lastX = pos.x;
+                lastY = pos.y;
+                scratchPoint(pos.x, pos.y);
             };
 
             const handleMove = (e) => {
@@ -817,11 +827,13 @@
                     e.preventDefault(); 
                 }
                 
-                // Sincronizza il disegno col refresh dello schermo per massima fluidità
+                // Traccia la linea continua senza lag
                 const pos = getPointerPos(e);
-                requestAnimationFrame(() => {
-                    scratch(pos.x, pos.y);
-                });
+                scratchLine(pos.x, pos.y);
+                
+                // Aggiorna l'ultima posizione conosciuta
+                lastX = pos.x;
+                lastY = pos.y;
             };
 
             const handleUp = () => {
