@@ -477,29 +477,29 @@
         // Configurazione Temi PRO
         const themes = {
             // Classici
-            vegas: { name: 'Las Vegas', color1: '#b91c1c', color2: '#000000', icon: '🎰', bg: '#450a0a' },
-            gold: { name: 'Royal Gold', color1: '#b45309', color2: '#000000', icon: '👑', bg: '#27272a' },
+            vegas: { name: 'Las Vegas', color1: '#b91c1c', color2: '#000000', icon: '🎰', bg: '#450a0a', patternCss: 'background-image: radial-gradient(#fbbf24 2px, transparent 2px), radial-gradient(#fbbf24 2px, transparent 2px); background-size: 40px 40px; background-position: 0 0, 20px 20px; opacity: 0.15;' },
+            gold: { name: 'Royal Gold', color1: '#b45309', color2: '#000000', icon: '👑', bg: '#27272a', patternCss: 'background-image: repeating-radial-gradient(circle at 0 0, transparent 0, rgba(255,255,255,0.1) 15px, transparent 30px);' },
             // Amici & Relax
-            aperitivo: { name: 'Aperitivo Time', color1: '#f59e0b', color2: '#ea580c', icon: '🍹', bg: '#78350f' },
-            pizza: { name: 'Pizzata', color1: '#ef4444', color2: '#fcd34d', icon: '🍕', bg: '#7f1d1d' },
-            calcio: { name: 'Partita di Calcio', color1: '#16a34a', color2: '#1e40af', icon: '⚽', bg: '#064e3b' },
-            film: { name: 'Serata Film', color1: '#4b5563', color2: '#111827', icon: '🍿', bg: '#1f2937' },
+            aperitivo: { name: 'Aperitivo Time', color1: '#f59e0b', color2: '#ea580c', icon: '🍹', bg: '#78350f', patternCss: 'background-image: radial-gradient(circle, rgba(255,255,255,0.2) 20%, transparent 20%); background-size: 30px 30px;' },
+            pizza: { name: 'Pizzata', color1: '#ef4444', color2: '#fcd34d', icon: '🍕', bg: '#7f1d1d', patternCss: 'background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.2) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.2) 75%, rgba(255,255,255,0.2)), repeating-linear-gradient(45deg, rgba(255,255,255,0.2) 25%, transparent 25%, transparent 75%, rgba(255,255,255,0.2) 75%, rgba(255,255,255,0.2)); background-size: 40px 40px; background-position: 0 0, 20px 20px;' },
+            calcio: { name: 'Partita di Calcio', color1: '#16a34a', color2: '#1e40af', icon: '⚽', bg: '#064e3b', patternCss: 'background-image: repeating-linear-gradient(90deg, rgba(255,255,255,0.15) 0px, rgba(255,255,255,0.15) 40px, transparent 40px, transparent 80px); background-size: 80px 100%;' },
+            film: { name: 'Serata Film', color1: '#4b5563', color2: '#111827', icon: '🍿', bg: '#1f2937', patternCss: 'background-image: repeating-linear-gradient(90deg, transparent 0, transparent 20px, rgba(255,255,255,0.1) 20px, rgba(255,255,255,0.1) 40px); background-size: 40px 100%;' },
             // Feste & Eventi
-            compleanno: { name: 'Buon Compleanno', color1: '#ec4899', color2: '#8b5cf6', icon: '🎂', bg: '#4c1d95' },
-            celibato: { name: 'Addio al Celibato', color1: '#ea580c', color2: '#111827', icon: '🍻', bg: '#171717' },
-            nubilato: { name: 'Addio al Nubilato', color1: '#f472b6', color2: '#be185d', icon: '🥂', bg: '#831843' },
-            laurea: { name: 'Festa di Laurea', color1: '#dc2626', color2: '#b91c1c', icon: '🎓', bg: '#450a0a' },
+            compleanno: { name: 'Buon Compleanno', color1: '#ec4899', color2: '#8b5cf6', icon: '🎂', bg: '#4c1d95', patternCss: 'background-image: radial-gradient(circle, rgba(255,255,255,0.3) 10%, transparent 10%); background-size: 20px 20px;' },
+            celibato: { name: 'Addio al Celibato', color1: '#ea580c', color2: '#111827', icon: '🍻', bg: '#171717', patternCss: 'background-image: repeating-linear-gradient(-45deg, rgba(0,0,0,0.4) 0px, rgba(0,0,0,0.4) 20px, transparent 20px, transparent 40px);' },
+            nubilato: { name: 'Addio al Nubilato', color1: '#f472b6', color2: '#be185d', icon: '🥂', bg: '#831843', patternCss: 'background-image: radial-gradient(circle at center, rgba(255,255,255,0.1) 0, rgba(255,255,255,0.1) 50%, transparent 50%); background-size: 40px 40px;' },
+            laurea: { name: 'Festa di Laurea', color1: '#dc2626', color2: '#b91c1c', icon: '🎓', bg: '#450a0a', patternCss: 'background-image: repeating-linear-gradient(45deg, transparent 0, transparent 10px, rgba(255,255,255,0.05) 10px, rgba(255,255,255,0.05) 20px);' },
             // Festività
-            halloween: { name: 'Halloween', color1: '#ea580c', color2: '#000000', icon: '🎃', bg: '#1a0b02' },
-            natale: { name: 'Buon Natale', color1: '#dc2626', color2: '#16a34a', icon: '🎄', bg: '#052e16' },
-            capodanno: { name: 'Capodanno', color1: '#fbbf24', color2: '#111827', icon: '🎆', bg: '#111827' },
-            pasqua: { name: 'Buona Pasqua', color1: '#a78bfa', color2: '#f472b6', icon: '🐰', bg: '#4c1d95' },
-            valentino: { name: 'San Valentino', color1: '#e11d48', color2: '#9f1239', icon: '❤️', bg: '#4c0519' },
+            halloween: { name: 'Halloween', color1: '#ea580c', color2: '#000000', icon: '🎃', bg: '#1a0b02', patternCss: 'background-image: radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 15px 15px;' },
+            natale: { name: 'Buon Natale', color1: '#dc2626', color2: '#16a34a', icon: '🎄', bg: '#052e16', patternCss: 'background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.2) 0px, rgba(255,255,255,0.2) 20px, transparent 20px, transparent 40px);' },
+            capodanno: { name: 'Capodanno', color1: '#fbbf24', color2: '#111827', icon: '🎆', bg: '#111827', patternCss: 'background-image: radial-gradient(circle, rgba(255,255,255,0.2) 2px, transparent 2.5px); background-size: 30px 30px; background-position: 0 0, 15px 15px;' },
+            pasqua: { name: 'Buona Pasqua', color1: '#a78bfa', color2: '#f472b6', icon: '🐰', bg: '#4c1d95', patternCss: 'background-image: radial-gradient(ellipse at center, rgba(255,255,255,0.2) 0%, transparent 50%); background-size: 50px 50px;' },
+            valentino: { name: 'San Valentino', color1: '#e11d48', color2: '#9f1239', icon: '❤️', bg: '#4c0519', patternCss: 'background-image: repeating-radial-gradient(circle at 0 0, transparent 0, rgba(255,255,255,0.1) 10px, transparent 20px);' },
             // Mondo & Culture
-            oktoberfest: { name: 'Oktoberfest', color1: '#fcd34d', color2: '#ca8a04', icon: '🥨', bg: '#713f12' },
-            stpatrick: { name: 'St. Patrick\'s Day', color1: '#22c55e', color2: '#14532d', icon: '☘️', bg: '#064e3b' },
+            oktoberfest: { name: 'Oktoberfest', color1: '#fcd34d', color2: '#ca8a04', icon: '🥨', bg: '#713f12', patternCss: 'background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.1) 0, rgba(255,255,255,0.1) 20px, transparent 20px, transparent 40px);' },
+            stpatrick: { name: 'St. Patrick\'s Day', color1: '#22c55e', color2: '#14532d', icon: '☘️', bg: '#064e3b', patternCss: 'background-image: radial-gradient(rgba(255,255,255,0.15) 2px, transparent 2px); background-size: 20px 20px;' },
             // Bambini
-            kids: { name: 'Festa Bimbi', color1: '#38bdf8', color2: '#f472b6', icon: '🎈', bg: '#0284c7' }
+            kids: { name: 'Festa Bimbi', color1: '#38bdf8', color2: '#f472b6', icon: '🎈', bg: '#0284c7', patternCss: 'background-image: radial-gradient(circle, rgba(255,255,255,0.3) 20%, transparent 20%), radial-gradient(circle, rgba(255,255,255,0.3) 20%, transparent 20%); background-size: 50px 50px; background-position: 0 0, 25px 25px;' }
         };
 
         const currencies = {
@@ -699,7 +699,8 @@
 
                 slide.innerHTML = `
                     <div class="ticket-container" id="ticket-${index}" style="background: linear-gradient(145deg, ${gradStart}, ${gradEnd})">
-                        <div class="ticket-theme-overlay" style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%2250%22 font-size=%2250%22>${themeConfig.icon}</text></svg>');"></div>
+                        <div class="ticket-theme-overlay" style="${themeConfig.patternCss || ''}"></div>
+                        <div class="ticket-theme-overlay" style="background-image: url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%2250%22 font-size=%2250%22>${themeConfig.icon}</text></svg>'); opacity: 0.1; mix-blend-mode: overlay;"></div>
                         
                         <div class="text-center z-10 flex flex-col items-center justify-center">
                             <div class="bg-black/30 text-white/80 text-[10px] font-mono px-3 py-1 rounded-full mb-2 tracking-widest uppercase border border-white/10">ID: ${Math.random().toString(36).substring(2, 8).toUpperCase()}</div>
@@ -843,10 +844,15 @@
                     clientY = e.touches[0].clientY;
                 }
                 
-                // Grazie al ctx.scale e al touch-action:none, non serve calcolare fattori di scala complessi
+                // FIX: Calcoliamo il fattore di scala reale del canvas in quel momento.
+                // Quando ci sono tante cartelle, le dimensioni CSS del contenitore possono 
+                // variare leggermente durante lo scroll. Questo normalizza perfettamente il tratto!
+                const scaleX = (canvas.width / dpr) / (bRect.width || 1);
+                const scaleY = (canvas.height / dpr) / (bRect.height || 1);
+                
                 return {
-                    x: clientX - bRect.left,
-                    y: clientY - bRect.top
+                    x: (clientX - bRect.left) * scaleX,
+                    y: (clientY - bRect.top) * scaleY
                 };
             };
 
@@ -946,7 +952,8 @@
                     if (pixels[i + 3] < 128) transparent++;
                 }
 
-                if ((transparent / total) * 100 > 40) {
+                // Facilitiamo leggermente lo svelamento (dal 40% al 35%)
+                if ((transparent / total) * 100 > 35) {
                     revealCard();
                 }
             };
