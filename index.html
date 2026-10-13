@@ -239,19 +239,32 @@
 
             <div class="space-y-6 relative z-10">
                 <!-- Sezione Cartelle e Costo -->
-                <div class="grid grid-cols-2 gap-5">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div class="group">
                         <label class="block text-xs font-bold uppercase tracking-wider mb-2 text-gray-400 group-focus-within:text-yellow-400 transition">Num. Cartelle</label>
                         <div class="relative">
                             <i class="fas fa-layer-group absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
-                            <input type="number" id="num-cards" value="10" min="2" max="200" class="premium-input w-full rounded-2xl pl-11 pr-4 py-3.5 text-xl font-bold transition">
+                            <input type="number" id="num-cards" value="10" min="2" max="200" class="premium-input w-full rounded-2xl pl-11 pr-4 py-3 text-lg font-bold transition">
                         </div>
                     </div>
                     <div class="group">
-                        <label class="block text-xs font-bold uppercase tracking-wider mb-2 text-gray-400 group-focus-within:text-yellow-400 transition">Costo (€ cad.)</label>
+                        <label class="block text-xs font-bold uppercase tracking-wider mb-2 text-gray-400 group-focus-within:text-yellow-400 transition">Quota Base</label>
                         <div class="relative">
-                            <i class="fas fa-euro-sign absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
-                            <input type="number" id="card-cost" value="5" min="0" step="0.5" class="premium-input w-full rounded-2xl pl-11 pr-4 py-3.5 text-xl font-bold transition">
+                            <i class="fas fa-hashtag absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
+                            <input type="number" id="card-cost" value="1" min="0" step="0.5" class="premium-input w-full rounded-2xl pl-11 pr-4 py-3 text-lg font-bold transition">
+                        </div>
+                    </div>
+                    <div class="group">
+                        <label class="block text-xs font-bold uppercase tracking-wider mb-2 text-gray-400 group-focus-within:text-yellow-400 transition">Si gioca per...</label>
+                        <div class="relative">
+                            <select id="currency-select" class="premium-input w-full rounded-2xl px-3 py-3 text-lg font-bold transition appearance-none text-center">
+                                <option value="EUR">Soldi (€)</option>
+                                <option value="BEER">Birre (🍺)</option>
+                                <option value="CANDY">Caramelle (🍬)</option>
+                                <option value="SHOT">Shot (🥃)</option>
+                                <option value="PIZZA">Fette (🍕)</option>
+                                <option value="PENALTY">Penitenze (🤡)</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -260,9 +273,9 @@
                 <div class="bg-black/40 rounded-2xl p-5 text-center border border-white/5 relative overflow-hidden group">
                     <div class="absolute inset-0 bg-gradient-to-r from-green-500/0 via-green-500/5 to-green-500/0 opacity-0 group-hover:opacity-100 transition duration-500"></div>
                     <span class="text-xs text-gray-400 uppercase font-bold tracking-widest flex items-center justify-center gap-2">
-                        <i class="fas fa-vault text-gray-500"></i> Montepremi Totale
+                        <i class="fas fa-vault text-gray-500"></i> Totale in Palio
                     </span>
-                    <div id="total-pool-display" class="text-4xl font-black text-green-400 mt-2 tracking-tight drop-shadow-[0_0_8px_rgba(74,222,128,0.4)]">50,00 €</div>
+                    <div id="total-pool-display" class="text-4xl font-black text-green-400 mt-2 tracking-tight drop-shadow-[0_0_8px_rgba(74,222,128,0.4)]">10</div>
                 </div>
 
                 <!-- Sezione Premi -->
@@ -279,26 +292,51 @@
                         <div>
                             <label class="block text-[10px] text-gray-400 uppercase font-bold tracking-wider mb-1.5">Distribuzione</label>
                             <select id="prize-mode" class="premium-input w-full rounded-xl px-3 py-2.5 text-sm font-semibold appearance-none">
-                                <option value="auto">🏆 Proporzionale (Classifica)</option>
+                                <option value="auto">🏆 Proporzionale</option>
                                 <option value="equal">⚖️ Parti Uguali</option>
                             </select>
                         </div>
                     </div>
-                    <div id="prize-preview" class="text-xs text-yellow-300 font-mono bg-black/50 p-3 rounded-xl border border-yellow-500/20 break-words leading-relaxed">
+                    <div id="prize-preview" class="text-xs text-yellow-300 font-mono bg-black/50 p-3 rounded-xl border border-yellow-500/20 break-words leading-relaxed text-center">
                         Anteprima: ...
                     </div>
                 </div>
 
                 <!-- Sezione Tema -->
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider mb-2 text-gray-400"><i class="fas fa-palette mr-1"></i> Stile Visivo</label>
+                    <label class="block text-xs font-bold uppercase tracking-wider mb-2 text-gray-400"><i class="fas fa-palette mr-1"></i> Scegli l'Evento</label>
                     <select id="theme-select" class="premium-input w-full rounded-2xl px-4 py-3.5 text-base font-semibold appearance-none mb-3">
-                        <option value="party">🍻 Serata tra Amici (Viola/Fucsia)</option>
-                        <option value="casino">🎰 Las Vegas VIP (Rosso/Nero)</option>
-                        <option value="gold">👑 Gold Edition (Oro/Nero)</option>
-                        <option value="custom">✨ Crea Tema Personalizzato...</option>
+                        <optgroup label="Amici & Relax">
+                            <option value="aperitivo">🍹 Aperitivo Time</option>
+                            <option value="pizza">🍕 Pizzata tra Amici</option>
+                            <option value="calcio">⚽ Partita di Calcio</option>
+                            <option value="film">🍿 Serata Film</option>
+                            <option value="vegas" selected>🎰 Serata Casinò</option>
+                        </optgroup>
+                        <optgroup label="Feste & Celebrazioni">
+                            <option value="compleanno">🎂 Buon Compleanno</option>
+                            <option value="laurea">🎓 Festa di Laurea</option>
+                            <option value="celibato">🍻 Addio al Celibato</option>
+                            <option value="nubilato">🥂 Addio al Nubilato</option>
+                        </optgroup>
+                        <optgroup label="Bambini & Famiglia">
+                            <option value="kids">🎈 Festa per Bambini</option>
+                        </optgroup>
+                        <optgroup label="Festività">
+                            <option value="halloween">🎃 Party di Halloween</option>
+                            <option value="natale">🎄 Vigilia / Natale</option>
+                            <option value="capodanno">🎆 Veglione di Capodanno</option>
+                            <option value="pasqua">🐰 Grigliata di Pasquetta</option>
+                            <option value="valentino">❤️ San Valentino</option>
+                        </optgroup>
+                        <optgroup label="Dal Mondo">
+                            <option value="oktoberfest">🥨 Oktoberfest</option>
+                            <option value="stpatrick">☘️ St. Patrick's Day</option>
+                        </optgroup>
+                        <optgroup label="Edizioni Speciali">
+                            <option value="gold">👑 VIP Gold Edition</option>
+                        </optgroup>
                     </select>
-                    <input type="text" id="custom-theme-input" placeholder="Es. Addio al Celibato..." class="hide premium-input w-full rounded-2xl px-4 py-3.5 text-base font-semibold">
                 </div>
 
                 <button id="generate-btn" class="btn-magic w-full text-white font-black uppercase tracking-widest py-4 rounded-2xl shadow-[0_10px_20px_-10px_rgba(245,158,11,0.6)] transform transition hover:-translate-y-1 active:scale-95 text-lg mt-2 flex items-center justify-center gap-3">
@@ -393,12 +431,12 @@
         // Stato dell'applicazione
         const state = {
             numCards: 10,
-            costPerCard: 5,
-            totalPool: 50,
+            costPerCard: 1,
+            totalPool: 10,
+            currency: 'EUR',
             numPrizes: 3,
             prizeMode: 'auto',
-            theme: 'party',
-            customTheme: '',
+            theme: 'vegas',
             prizesList: [],
             cardsData: [],
             currentCardIndex: 0
@@ -407,12 +445,12 @@
         // Elementi DOM Setup
         const elNumCards = document.getElementById('num-cards');
         const elCardCost = document.getElementById('card-cost');
+        const elCurrency = document.getElementById('currency-select');
         const elTotalPool = document.getElementById('total-pool-display');
         const elNumPrizes = document.getElementById('num-prizes');
         const elPrizeMode = document.getElementById('prize-mode');
         const elPrizePreview = document.getElementById('prize-preview');
         const elThemeSelect = document.getElementById('theme-select');
-        const elCustomTheme = document.getElementById('custom-theme-input');
         const btnGenerate = document.getElementById('generate-btn');
 
         // Elementi DOM Gioco
@@ -438,14 +476,49 @@
 
         // Configurazione Temi PRO
         const themes = {
-            party: { name: 'Party Time', color1: '#7e22ce', color2: '#db2777', icon: '🥂', bg: '#4c1d95' },
-            casino: { name: 'Las Vegas VIP', color1: '#b91c1c', color2: '#000000', icon: '🎰', bg: '#450a0a' },
+            // Classici
+            vegas: { name: 'Las Vegas', color1: '#b91c1c', color2: '#000000', icon: '🎰', bg: '#450a0a' },
             gold: { name: 'Royal Gold', color1: '#b45309', color2: '#000000', icon: '👑', bg: '#27272a' },
-            custom: { name: '', color1: '#0ea5e9', color2: '#2563eb', icon: '✨', bg: '#0f172a' }
+            // Amici & Relax
+            aperitivo: { name: 'Aperitivo Time', color1: '#f59e0b', color2: '#ea580c', icon: '🍹', bg: '#78350f' },
+            pizza: { name: 'Pizzata', color1: '#ef4444', color2: '#fcd34d', icon: '🍕', bg: '#7f1d1d' },
+            calcio: { name: 'Partita di Calcio', color1: '#16a34a', color2: '#1e40af', icon: '⚽', bg: '#064e3b' },
+            film: { name: 'Serata Film', color1: '#4b5563', color2: '#111827', icon: '🍿', bg: '#1f2937' },
+            // Feste & Eventi
+            compleanno: { name: 'Buon Compleanno', color1: '#ec4899', color2: '#8b5cf6', icon: '🎂', bg: '#4c1d95' },
+            celibato: { name: 'Addio al Celibato', color1: '#ea580c', color2: '#111827', icon: '🍻', bg: '#171717' },
+            nubilato: { name: 'Addio al Nubilato', color1: '#f472b6', color2: '#be185d', icon: '🥂', bg: '#831843' },
+            laurea: { name: 'Festa di Laurea', color1: '#dc2626', color2: '#b91c1c', icon: '🎓', bg: '#450a0a' },
+            // Festività
+            halloween: { name: 'Halloween', color1: '#ea580c', color2: '#000000', icon: '🎃', bg: '#1a0b02' },
+            natale: { name: 'Buon Natale', color1: '#dc2626', color2: '#16a34a', icon: '🎄', bg: '#052e16' },
+            capodanno: { name: 'Capodanno', color1: '#fbbf24', color2: '#111827', icon: '🎆', bg: '#111827' },
+            pasqua: { name: 'Buona Pasqua', color1: '#a78bfa', color2: '#f472b6', icon: '🐰', bg: '#4c1d95' },
+            valentino: { name: 'San Valentino', color1: '#e11d48', color2: '#9f1239', icon: '❤️', bg: '#4c0519' },
+            // Mondo & Culture
+            oktoberfest: { name: 'Oktoberfest', color1: '#fcd34d', color2: '#ca8a04', icon: '🥨', bg: '#713f12' },
+            stpatrick: { name: 'St. Patrick\'s Day', color1: '#22c55e', color2: '#14532d', icon: '☘️', bg: '#064e3b' },
+            // Bambini
+            kids: { name: 'Festa Bimbi', color1: '#38bdf8', color2: '#f472b6', icon: '🎈', bg: '#0284c7' }
+        };
+
+        const currencies = {
+            EUR: { symbol: '€', isCurrency: true },
+            BEER: { symbol: '🍺', isCurrency: false },
+            CANDY: { symbol: '🍬', isCurrency: false },
+            SHOT: { symbol: '🥃', isCurrency: false },
+            PIZZA: { symbol: '🍕', isCurrency: false },
+            PENALTY: { symbol: '🤡', isCurrency: false }
         };
 
         // Utilities
-        const formatEuro = (num) => new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(num);
+        const formatPrize = (num) => {
+            const curr = currencies[state.currency];
+            if (curr.isCurrency) {
+                return new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR' }).format(num);
+            }
+            return `${num} ${curr.symbol}`;
+        };
         
         // Trigger Haptic Feedback se supportato
         const triggerHaptic = (pattern = 50) => {
@@ -487,6 +560,7 @@
         function updateSetupCalculations() {
             state.numCards = parseInt(elNumCards.value) || 0;
             state.costPerCard = parseFloat(elCardCost.value) || 0;
+            state.currency = elCurrency.value;
             state.totalPool = state.numCards * state.costPerCard;
             
             if (state.numCards < 2) elNumCards.value = 2;
@@ -497,60 +571,58 @@
             }
             state.numPrizes = numPrizesVal;
             state.prizeMode = elPrizeMode.value;
+            state.theme = elThemeSelect.value;
 
-            elTotalPool.innerText = formatEuro(state.totalPool);
+            elTotalPool.innerText = formatPrize(state.totalPool);
 
             state.prizesList = calculatePrizes();
             
             let previewHTML = '';
             if(state.totalPool <= 0) {
-                previewHTML = "Imposta cartelle e costo per calcolare i premi.";
+                previewHTML = "Imposta cartelle e quota per calcolare i premi.";
             } else {
                 if (state.prizesList.length <= 5) {
-                    previewHTML = state.prizesList.map((p, i) => `<b>${i+1}°</b>: ${formatEuro(p)}`).join(' &nbsp;|&nbsp; ');
+                    previewHTML = state.prizesList.map((p, i) => `<b>${i+1}°</b>: ${formatPrize(p)}`).join(' &nbsp;|&nbsp; ');
                 } else {
-                    previewHTML = state.prizesList.slice(0, 3).map((p, i) => `<b>${i+1}°</b>: ${formatEuro(p)}`).join(' &nbsp;|&nbsp; ') + ` ...e altri ${state.prizesList.length - 3}`;
+                    previewHTML = state.prizesList.slice(0, 3).map((p, i) => `<b>${i+1}°</b>: ${formatPrize(p)}`).join(' &nbsp;|&nbsp; ') + ` ...e altri ${state.prizesList.length - 3}`;
                 }
             }
             elPrizePreview.innerHTML = previewHTML;
-
-            if (elThemeSelect.value === 'custom') {
-                elCustomTheme.classList.remove('hide');
-                state.theme = 'custom';
-            } else {
-                elCustomTheme.classList.add('hide');
-                state.theme = elThemeSelect.value;
-            }
         }
 
         function calculatePrizes() {
             let prizes = [];
             let pool = state.totalPool;
             let n = state.numPrizes;
+            let isInt = !currencies[state.currency].isCurrency; // Se non sono Euro, servono numeri interi
 
             if (pool <= 0 || n <= 0) return prizes;
 
             if (state.prizeMode === 'equal') {
-                let split = Math.floor((pool / n) * 100) / 100;
+                let split = isInt ? Math.floor(pool / n) : Math.floor((pool / n) * 100) / 100;
                 for (let i = 0; i < n; i++) prizes.push(split);
-                let totalSplit = split * n;
-                if(totalSplit < pool) prizes[0] = Math.round((prizes[0] + (pool - totalSplit)) * 100) / 100;
+                let totalSplit = prizes.reduce((a, b) => a + b, 0);
+                if(totalSplit < pool) {
+                    prizes[0] += isInt ? Math.round(pool - totalSplit) : Math.round((pool - totalSplit) * 100) / 100;
+                }
             } else {
                 let weights = [];
                 let totalWeight = 0;
                 for (let i = 0; i < n; i++) {
-                    let weight = Math.pow(n - i, 1.8); // Curva più ripida per premi PRO
+                    let weight = Math.pow(n - i, 1.8);
                     weights.push(weight);
                     totalWeight += weight;
                 }
 
                 for (let i = 0; i < n; i++) {
-                    let amount = Math.floor((pool * (weights[i] / totalWeight)) * 2) / 2;
+                    let amount = pool * (weights[i] / totalWeight);
+                    amount = isInt ? Math.round(amount) : Math.floor(amount * 2) / 2;
                     prizes.push(amount);
                 }
 
                 let sum = prizes.reduce((a, b) => a + b, 0);
                 if (sum !== pool) prizes[0] += (pool - sum);
+                if (isInt) prizes[0] = Math.round(prizes[0]);
             }
             return prizes.sort((a, b) => b - a);
         }
@@ -558,6 +630,7 @@
         // Event Listeners Setup
         elNumCards.addEventListener('input', updateSetupCalculations);
         elCardCost.addEventListener('input', updateSetupCalculations);
+        elCurrency.addEventListener('change', updateSetupCalculations);
         elNumPrizes.addEventListener('input', updateSetupCalculations);
         elPrizeMode.addEventListener('change', updateSetupCalculations);
         elThemeSelect.addEventListener('change', updateSetupCalculations);
@@ -565,12 +638,6 @@
         updateSetupCalculations();
 
         btnGenerate.addEventListener('click', () => {
-            state.customTheme = elCustomTheme.value.trim();
-            if (state.theme === 'custom' && !state.customTheme) {
-                // Modalità fallback custom name
-                state.customTheme = "Tema Personalizzato";
-            }
-
             generateGameData();
             buildCarouselDOM();
             
@@ -580,13 +647,12 @@
             
             // Update Header & Background
             let themeConfig = themes[state.theme];
-            let titleText = state.theme === 'custom' ? state.customTheme : themeConfig.name;
-            elGameTitle.innerHTML = `${themeConfig.icon} ${titleText}`;
+            elGameTitle.innerHTML = `${themeConfig.icon} ${themeConfig.name}`;
             elTotalCardsNum.innerText = state.numCards;
             gameBg.style.backgroundColor = themeConfig.bg;
             
             // Popola Modale Premi
-            elModalTotalPool.innerText = formatEuro(state.totalPool);
+            elModalTotalPool.innerText = formatPrize(state.totalPool);
             elModalPrizesList.innerHTML = state.prizesList.map((p, i) => 
                 `<li class="flex justify-between items-center bg-white/5 p-4 rounded-xl border border-white/10 shadow-sm">
                     <span class="font-black text-gray-300 text-sm flex items-center">
@@ -595,7 +661,7 @@
                           i===2 ? '<i class="fas fa-medal text-amber-600 mr-2"></i> 3° Premio' : 
                           `<span class="w-5 mr-2 text-center text-gray-500">${i+1}°</span> Premio`}
                     </span>
-                    <span class="text-xl font-black text-green-400 tracking-tight">${formatEuro(p)}</span>
+                    <span class="text-xl font-black text-green-400 tracking-tight">${formatPrize(p)}</span>
                 </li>`
             ).join('');
 
@@ -628,8 +694,8 @@
                 const slide = document.createElement('div');
                 slide.className = 'carousel-slide';
                 
-                let gradStart = state.theme === 'custom' ? themeConfig.color1 : themeConfig.color1;
-                let gradEnd = state.theme === 'custom' ? themeConfig.color2 : themeConfig.color2;
+                let gradStart = themeConfig.color1;
+                let gradEnd = themeConfig.color2;
 
                 slide.innerHTML = `
                     <div class="ticket-container" id="ticket-${index}" style="background: linear-gradient(145deg, ${gradStart}, ${gradEnd})">
@@ -645,8 +711,8 @@
                             <div class="result-content" id="result-${index}">
                                 ${card.isWinner 
                                     ? `<div class="text-[10px] text-green-600 uppercase font-black tracking-widest mb-1 bg-green-100 px-3 py-1 rounded-full border border-green-200">HAI VINTO!</div>
-                                       <div class="win-amount mt-1">${formatEuro(card.amount)}</div>
-                                       <i class="fas fa-coins text-yellow-500 text-4xl mt-3 drop-shadow-md"></i>` 
+                                       <div class="win-amount mt-1">${formatPrize(card.amount)}</div>
+                                       <i class="fas fa-gift text-yellow-500 text-4xl mt-3 drop-shadow-md"></i>` 
                                     : `<div class="lose-text mt-4">RITENTA</div>
                                        <div class="text-xs text-gray-400 uppercase font-bold tracking-widest mt-2">Sarai più fortunato</div>
                                        <i class="far fa-face-frown-open text-gray-300 text-4xl mt-4 opacity-50"></i>`
